@@ -21,6 +21,8 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<TbOrgUser> TbOrgUsers { get; set; }
 
+    public virtual DbSet<TbRefreshToken> TbRefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -36,7 +38,6 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.MenuId)
                 .HasMaxLength(50)
                 .HasColumnName("MenuID");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
             entity.Property(e => e.MenuName).HasMaxLength(50);
             entity.Property(e => e.ParentMenuId)
                 .HasMaxLength(50)
@@ -56,8 +57,6 @@ public partial class PmdbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("DID");
             entity.Property(e => e.DeptName).HasMaxLength(50);
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
-            entity.Property(e => e.Expand).HasDefaultValueSql("'0'");
             entity.Property(e => e.ParentDid)
                 .HasMaxLength(50)
                 .HasColumnName("ParentDID");
@@ -82,7 +81,6 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Uid)
                 .HasMaxLength(50)
                 .HasColumnName("UID");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
 
             entity.HasOne(d => d.DidNavigation).WithMany(p => p.TbOrgDeptUsers)
                 .HasForeignKey(d => d.Did)
@@ -147,12 +145,12 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("EMail");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.OauthProvider)
                 .HasMaxLength(50)
                 .HasColumnName("OAuthProvider");
             entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.PhotoUrl).HasMaxLength(100);
 
             entity.HasMany(d => d.Rids).WithMany(p => p.Uids)
                 .UsingEntity<Dictionary<string, object>>(
@@ -179,6 +177,18 @@ public partial class PmdbContext : DbContext
                             .HasMaxLength(50)
                             .HasColumnName("RID");
                     });
+        });
+
+        modelBuilder.Entity<TbRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.RefreshToken).HasName("PRIMARY");
+
+            entity.ToTable("TbRefreshToken");
+
+            entity.Property(e => e.ExpireTime).HasColumnType("datetime");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(255)
+                .HasColumnName("UID");
         });
 
         OnModelCreatingPartial(modelBuilder);

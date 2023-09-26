@@ -7,13 +7,15 @@ public partial class TbOrgUser
 {
     public string Uid { get; set; } = null!;
 
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     public string? Passwrod { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public bool? Enable { get; set; }
+    public string? PhotoUrl { get; set; }
+
+    public bool Enable { get; set; }
 
     public string? OauthProvider { get; set; }
 

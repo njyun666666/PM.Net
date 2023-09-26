@@ -9,13 +9,13 @@ public partial class TbMenu
 
     public string? ParentMenuId { get; set; }
 
-    public string? MenuName { get; set; }
+    public string MenuName { get; set; } = null!;
 
     public string? Url { get; set; }
 
-    public bool? Enable { get; set; }
+    public bool Enable { get; set; }
 
-    public int? Sort { get; set; }
+    public int Sort { get; set; }
 
     public virtual ICollection<TbOrgRole> Rids { get; set; } = new List<TbOrgRole>();
 }

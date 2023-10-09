@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PMAPI.Errors;
+using PMAPI.Models;
 using PMCore.Configuration;
 using PMCore.Jwt;
 using PMDB.Models;
@@ -81,6 +82,8 @@ builder.Services
 	});
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddAutoMapper(typeof(ModelProfile));
 
 var app = builder.Build();
 

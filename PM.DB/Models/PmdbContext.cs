@@ -38,6 +38,7 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.MenuId)
                 .HasMaxLength(50)
                 .HasColumnName("MenuID");
+            entity.Property(e => e.Icon).HasMaxLength(50);
             entity.Property(e => e.MenuName).HasMaxLength(50);
             entity.Property(e => e.ParentMenuId)
                 .HasMaxLength(50)

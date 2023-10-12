@@ -10,29 +10,23 @@ namespace PMAPI.Controllers
 		{
 
 		}
-		public string _uid
-		{
-			get
-			{
-				return GetUserClaim("uid");
-			}
-		}
+		public string _uid => GetUserClaim("uid").FirstOrDefault();
 
 		[NonAction]
-		public string GetUserClaim(string ClaimName)
+		public List<string> GetUserClaim(string ClaimName)
 		{
-			string value = string.Empty;
 			var user = HttpContext.User;
 
 			if (user.HasClaim(c => c.Type == ClaimName))
 			{
-				string? v = user.Claims.FirstOrDefault(c => c.Type == ClaimName)?.Value;
+				var v = user.Claims.Where(c => c.Type == ClaimName).Select(x => x.Value).ToList();
 				if (v != null)
 				{
-					value = v;
+					return v;
 				}
 			}
-			return value;
+
+			return new List<string>();
 		}
 	}
 }

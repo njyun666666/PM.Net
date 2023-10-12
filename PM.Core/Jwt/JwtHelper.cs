@@ -21,6 +21,10 @@ namespace PMCore.Jwt
 
 		public string GenerateToken(string userName, List<Claim> claims, int expireMinutes = 30)
 		{
+#if DEBUG
+			expireMinutes = 365 * 24 * 60;
+#endif
+
 			var issuer = _config.GetValue<string>("JwtSettings:Issuer");
 			var signKey = _config.GetValue<string>("JwtSettings:SignKey");
 			claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userName)); // User.Identity.Name

@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMAPI.Models.Menu;
 using PMDB.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace PMAPI.Controllers
 {
@@ -31,7 +27,12 @@ namespace PMAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<MenuViewModel>>> GetTbMenus()
 		{
-			_menus = await _context.TbMenus.Where(x => x.Enable).OrderBy(x => x.Sort).ToListAsync();
+			var roles = GetUserClaim(ClaimTypes.Role);
+
+			_menus = await _context.TbMenus
+				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == "everyone" || roles.Contains(r.Rid)).Any())
+				.OrderBy(m => m.Sort).ToListAsync();
+
 			return SetMenu(null);
 		}
 

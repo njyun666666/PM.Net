@@ -31,7 +31,7 @@ namespace PMAPI.Controllers
 		public async Task<ActionResult<TokenViewModel>> Index(LoginModel login)
 		{
 			string encodingPW = EncodingHepler.ComputeHMACSHA256(login.Password, _config.APIKey());
-			var user = await _context.TbOrgUsers.FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Passwrod == encodingPW);
+			var user = await _context.TbOrgUsers.Include(x => x.Rids).FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Passwrod == encodingPW);
 
 			if (user == null)
 			{
@@ -56,7 +56,7 @@ namespace PMAPI.Controllers
 
 			_context.TbRefreshTokens.Remove(tbRefresh);
 
-			var user = await _context.TbOrgUsers.FirstOrDefaultAsync(x => x.Uid == tbRefresh.Uid && x.Enable);
+			var user = await _context.TbOrgUsers.Include(x => x.Rids).FirstOrDefaultAsync(x => x.Uid == tbRefresh.Uid && x.Enable);
 
 			if (user == null)
 			{
@@ -80,6 +80,11 @@ namespace PMAPI.Controllers
 			if (!string.IsNullOrWhiteSpace(user.PhotoUrl))
 			{
 				claims.Add(new Claim("photoURL", user.PhotoUrl));
+			}
+
+			foreach (var role in user.Rids)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, role.Rid));
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();

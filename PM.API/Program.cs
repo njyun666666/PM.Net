@@ -70,8 +70,6 @@ builder.Services
 		options.IncludeErrorDetails = true;
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
-			NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-			RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
 			ValidateIssuer = true,
 			ValidIssuer = builder.Configuration.GetValue<string>("JwtSettings:Issuer"),
 			ValidateAudience = false,

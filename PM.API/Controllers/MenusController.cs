@@ -30,7 +30,7 @@ namespace PMAPI.Controllers
 			var roles = GetUserClaim(ClaimTypes.Role);
 
 			_menus = await _context.TbMenus
-				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == "everyone" || roles.Contains(r.Rid)).Any())
+				.Where(m => m.Enable && roles.Contains(m.MenuId))
 				.OrderBy(m => m.Sort).ToListAsync();
 
 			return SetMenu(null);

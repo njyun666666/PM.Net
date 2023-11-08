@@ -21,5 +21,5 @@ public partial class TbOrgUser
 
     public virtual ICollection<TbOrgDeptUser> TbOrgDeptUsers { get; set; } = new List<TbOrgDeptUser>();
 
-    public virtual ICollection<TbOrgRole> Rids { get; set; } = new List<TbOrgRole>();
+    public virtual ICollection<TbOrgRoleUser> TbOrgRoleUsers { get; set; } = new List<TbOrgRoleUser>();
 }

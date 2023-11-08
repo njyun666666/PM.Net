@@ -7,6 +7,7 @@ using PMCore.Configuration;
 using PMCore.Helpers;
 using PMCore.Jwt;
 using PMDB.Models;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 
@@ -31,11 +32,18 @@ namespace PMAPI.Controllers
 		public async Task<ActionResult<TokenViewModel>> Index(LoginModel login)
 		{
 			string encodingPW = EncodingHepler.ComputeHMACSHA256(login.Password, _config.APIKey());
-			var user = await _context.TbOrgUsers.Include(x => x.Rids).FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Passwrod == encodingPW);
+			var user = await _context.TbOrgUsers.Include(x => x.TbOrgRoleUsers).FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Passwrod == encodingPW);
 
 			if (user == null)
 			{
 				throw new RestException(HttpStatusCode.Unauthorized, new { error = "Login Failed" });
+			}
+
+			var isDeptExists = await _context.TbOrgDeptUsers.AnyAsync(x => x.Uid == user.Uid && x.Enable && x.DidNavigation.Enable);
+
+			if (!isDeptExists)
+			{
+				throw new RestException(HttpStatusCode.Unauthorized, new { error = "No department set" });
 			}
 
 			var token = await CreateToken(user);
@@ -56,9 +64,17 @@ namespace PMAPI.Controllers
 
 			_context.TbRefreshTokens.Remove(tbRefresh);
 
-			var user = await _context.TbOrgUsers.Include(x => x.Rids).FirstOrDefaultAsync(x => x.Uid == tbRefresh.Uid && x.Enable);
+			var user = await _context.TbOrgUsers.Include(x => x.TbOrgRoleUsers).FirstOrDefaultAsync(x => x.Uid == tbRefresh.Uid && x.Enable);
 
 			if (user == null)
+			{
+				await _context.SaveChangesAsync();
+				throw new RestException(HttpStatusCode.Unauthorized, new { error = "refresh token Failed" });
+			}
+
+			var isDeptExists = await _context.TbOrgDeptUsers.AnyAsync(x => x.Uid == user.Uid && x.Enable && x.DidNavigation.Enable);
+
+			if (!isDeptExists)
 			{
 				await _context.SaveChangesAsync();
 				throw new RestException(HttpStatusCode.Unauthorized, new { error = "refresh token Failed" });
@@ -82,9 +98,20 @@ namespace PMAPI.Controllers
 				claims.Add(new Claim("photoURL", user.PhotoUrl));
 			}
 
-			foreach (var role in user.Rids)
+			var roles = user.TbOrgRoleUsers.Select(x => x.Rid).ToList();
+
+			var menus = await _context.TbMenus
+				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == AppConst.Role.Evenyone || roles.Contains(r.Rid)).Any())
+				.OrderBy(m => m.Sort).ToListAsync();
+
+			foreach (var role in roles)
 			{
-				claims.Add(new Claim(ClaimTypes.Role, role.Rid));
+				claims.Add(new Claim(ClaimTypes.Role, role));
+			}
+
+			foreach (var menu in menus)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, menu.MenuId));
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();

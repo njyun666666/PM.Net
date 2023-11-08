@@ -19,6 +19,8 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<TbOrgRole> TbOrgRoles { get; set; }
 
+    public virtual DbSet<TbOrgRoleUser> TbOrgRoleUsers { get; set; }
+
     public virtual DbSet<TbOrgUser> TbOrgUsers { get; set; }
 
     public virtual DbSet<TbRefreshToken> TbRefreshTokens { get; set; }
@@ -132,6 +134,44 @@ public partial class PmdbContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<TbOrgRoleUser>(entity =>
+        {
+            entity.HasKey(e => new { e.Uid, e.Rid, e.RootDid })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0 });
+
+            entity.ToTable("TbOrgRoleUser");
+
+            entity.HasIndex(e => e.Rid, "RID");
+
+            entity.HasIndex(e => e.RootDid, "TbOrgRoleUser_ibfk_3_idx");
+
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
+            entity.Property(e => e.Rid)
+                .HasMaxLength(50)
+                .HasColumnName("RID");
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+
+            entity.HasOne(d => d.RidNavigation).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.Rid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_2");
+
+            entity.HasOne(d => d.RootD).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.RootDid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_3");
+
+            entity.HasOne(d => d.UidNavigation).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.Uid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_1");
+        });
+
         modelBuilder.Entity<TbOrgUser>(entity =>
         {
             entity.HasKey(e => e.Uid).HasName("PRIMARY");
@@ -152,32 +192,6 @@ public partial class PmdbContext : DbContext
                 .HasColumnName("OAuthProvider");
             entity.Property(e => e.Passwrod).HasMaxLength(255);
             entity.Property(e => e.PhotoUrl).HasMaxLength(100);
-
-            entity.HasMany(d => d.Rids).WithMany(p => p.Uids)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TbOrgRoleUser",
-                    r => r.HasOne<TbOrgRole>().WithMany()
-                        .HasForeignKey("Rid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("TbOrgRoleUser_ibfk_2"),
-                    l => l.HasOne<TbOrgUser>().WithMany()
-                        .HasForeignKey("Uid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("TbOrgRoleUser_ibfk_1"),
-                    j =>
-                    {
-                        j.HasKey("Uid", "Rid")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
-                        j.ToTable("TbOrgRoleUser");
-                        j.HasIndex(new[] { "Rid" }, "RID");
-                        j.IndexerProperty<string>("Uid")
-                            .HasMaxLength(50)
-                            .HasColumnName("UID");
-                        j.IndexerProperty<string>("Rid")
-                            .HasMaxLength(50)
-                            .HasColumnName("RID");
-                    });
         });
 
         modelBuilder.Entity<TbRefreshToken>(entity =>

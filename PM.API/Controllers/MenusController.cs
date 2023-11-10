@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMAPI.Models.Menu;
+using PMCore.Configuration;
 using PMDB.Models;
-using System.Security.Claims;
 
 namespace PMAPI.Controllers
 {
@@ -27,10 +27,9 @@ namespace PMAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<MenuViewModel>>> GetTbMenus()
 		{
-			var roles = GetUserClaim(ClaimTypes.Role);
 
 			_menus = await _context.TbMenus
-				.Where(m => m.Enable && roles.Contains(m.MenuId))
+				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == AppConst.Role.Evenyone || _roles.Contains(r.Rid)).Any())
 				.OrderBy(m => m.Sort).ToListAsync();
 
 			return SetMenu(null);

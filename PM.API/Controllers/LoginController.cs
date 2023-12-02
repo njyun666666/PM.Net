@@ -98,20 +98,9 @@ namespace PMAPI.Controllers
 				claims.Add(new Claim("photoURL", user.PhotoUrl));
 			}
 
-			var roles = user.TbOrgRoleUsers.Select(x => x.Rid).ToList();
-
-			var menus = await _context.TbMenus
-				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == AppConst.Role.Evenyone || roles.Contains(r.Rid)).Any())
-				.OrderBy(m => m.Sort).ToListAsync();
-
-			foreach (var role in roles)
+			foreach (var role in user.TbOrgRoleUsers)
 			{
-				claims.Add(new Claim(ClaimTypes.Role, role));
-			}
-
-			foreach (var menu in menus)
-			{
-				claims.Add(new Claim(ClaimTypes.Role, menu.MenuId));
+				claims.Add(new Claim(ClaimTypes.Role, role.Rid));
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();

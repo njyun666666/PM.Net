@@ -25,6 +25,10 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<TbRefreshToken> TbRefreshTokens { get; set; }
 
+    public virtual DbSet<VwOrgCompany> VwOrgCompanies { get; set; }
+
+    public virtual DbSet<VwOrgDept> VwOrgDepts { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -55,6 +59,10 @@ public partial class PmdbContext : DbContext
             entity.HasKey(e => e.Did).HasName("PRIMARY");
 
             entity.ToTable("TbOrgDept");
+
+            entity.HasIndex(e => e.ParentDid, "idx_ParentDID");
+
+            entity.HasIndex(e => new { e.RootDid, e.Did }, "idx_RootDID_DID");
 
             entity.Property(e => e.Did)
                 .HasMaxLength(50)
@@ -204,6 +212,44 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Uid)
                 .HasMaxLength(255)
                 .HasColumnName("UID");
+        });
+
+        modelBuilder.Entity<VwOrgCompany>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgCompany");
+
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.ParentDid)
+                .HasMaxLength(50)
+                .HasColumnName("ParentDID");
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+        });
+
+        modelBuilder.Entity<VwOrgDept>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgDept");
+
+            entity.Property(e => e.CompanyName).HasMaxLength(50);
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.ParentDeptName).HasMaxLength(50);
+            entity.Property(e => e.ParentDid)
+                .HasMaxLength(50)
+                .HasColumnName("ParentDID");
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
         });
 
         OnModelCreatingPartial(modelBuilder);

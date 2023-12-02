@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PMAPI.Models.Menu;
+using PMAPI.Models.OrgDepts;
 using PMDB.Models;
 
 namespace PMAPI.Models
@@ -9,6 +10,9 @@ namespace PMAPI.Models
 		public ModelProfile()
 		{
 			CreateMap<TbMenu, MenuViewModel>();
+			CreateMap<VwOrgDept, OrgDeptsViewModel>();
+			CreateMap<VwOrgCompany, CompanyViewModel>();
+
 		}
 	}
 }

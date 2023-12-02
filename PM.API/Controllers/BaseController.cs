@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace PMAPI.Controllers
 {
@@ -11,6 +12,7 @@ namespace PMAPI.Controllers
 
 		}
 		public string _uid => GetUserClaim("uid").FirstOrDefault();
+		public List<string> _roles => GetUserClaim(ClaimTypes.Role);
 
 		[NonAction]
 		public List<string> GetUserClaim(string ClaimName)
@@ -27,6 +29,12 @@ namespace PMAPI.Controllers
 			}
 
 			return new List<string>();
+		}
+
+		[NonAction]
+		public bool IsRole(string role)
+		{
+			return _roles.Contains(role);
 		}
 	}
 }

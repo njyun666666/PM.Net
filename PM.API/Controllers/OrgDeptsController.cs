@@ -12,7 +12,7 @@ namespace PMAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	[Authorize(Roles = $"{AppConst.Role.Administrator},{AppConst.Role.Organization}")]
+	[Authorize(Roles = $"{AppConst.Role.Organization},{AppConst.Role.Company}")]
 	public class OrgDeptsController : BaseController
 	{
 		private readonly PmdbContext _context;

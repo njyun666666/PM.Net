@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMAPI.Errors;
 using PMAPI.Models.Login;
@@ -7,7 +6,6 @@ using PMCore.Configuration;
 using PMCore.Helpers;
 using PMCore.Jwt;
 using PMDB.Models;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
 
@@ -98,9 +96,9 @@ namespace PMAPI.Controllers
 				claims.Add(new Claim("photoURL", user.PhotoUrl));
 			}
 
-			foreach (var role in user.TbOrgRoleUsers)
+			foreach (var rid in user.TbOrgRoleUsers.Select(x => x.Rid).Distinct())
 			{
-				claims.Add(new Claim(ClaimTypes.Role, role.Rid));
+				claims.Add(new Claim(ClaimTypes.Role, rid));
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();

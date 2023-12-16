@@ -12,7 +12,7 @@ namespace PMAPI.Models
 			CreateMap<TbMenu, MenuViewModel>();
 			CreateMap<VwOrgDept, OrgDeptsViewModel>();
 			CreateMap<VwOrgCompany, CompanyViewModel>();
-
+			CreateMap<CompanyModel, TbOrgDept>();
 		}
 	}
 }

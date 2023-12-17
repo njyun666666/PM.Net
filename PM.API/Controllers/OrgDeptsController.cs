@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMAPI.Errors;
 using PMAPI.Models.OrgDepts;
+using PMAPI.Models.Query;
 using PMCore.Configuration;
 using PMDB.Models;
+using System.Linq.Dynamic.Core;
 using System.Net;
 
 namespace PMAPI.Controllers
@@ -24,14 +26,29 @@ namespace PMAPI.Controllers
 			_mapper = mapper;
 		}
 
-		[HttpGet(nameof(CompanyList))]
-		public async Task<ActionResult<List<CompanyViewModel>>> CompanyList()
+		[HttpPost(nameof(QueryCompany))]
+		public async Task<ActionResult<QueryViewModel<List<CompanyViewModel>>>> QueryCompany(QueryModel<CompanyModel> model)
 		{
-			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
-			var listQuery = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.RootDid)).OrderBy(x => x.DeptName);
-			return _mapper.Map<List<CompanyViewModel>>(listQuery);
-		}
+			var listQuery = _context.VwOrgCompanies.AsQueryable();
 
+			if (!string.IsNullOrWhiteSpace(model.Filter.DeptName))
+			{
+				listQuery = listQuery.Where(x => x.DeptName.Contains(model.Filter.DeptName));
+			}
+
+			var count = listQuery.Count();
+
+			if (!string.IsNullOrWhiteSpace(model.Sort))
+			{
+				listQuery = listQuery.OrderBy(model.OrderBy);
+			}
+
+			listQuery = listQuery.Skip(model.Skip).Take(model.PageSize);
+
+			var Data = _mapper.Map<List<CompanyViewModel>>(listQuery).ToList();
+
+			return new QueryViewModel<List<CompanyViewModel>> { Data = Data, Count = count, PageSize = model.PageSize };
+		}
 
 		[HttpPost(nameof(Company))]
 		[Authorize(Roles = $"{AppConst.Role.Company}")]
@@ -87,6 +104,14 @@ namespace PMAPI.Controllers
 			}
 
 			return NoContent();
+		}
+
+		[HttpGet(nameof(CompanyList))]
+		public async Task<ActionResult<List<CompanyViewModel>>> CompanyList()
+		{
+			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
+			var listQuery = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.RootDid)).OrderBy(x => x.DeptName);
+			return _mapper.Map<List<CompanyViewModel>>(listQuery);
 		}
 
 		// POST: api/OrgDepts

@@ -4,7 +4,7 @@ namespace PMAPI.Models.Query
 {
 	public class QueryModel<T>
 	{
-		public T Filter { get; set; }
+		public T? Filter { get; set; }
 		public int PageIndex { get; set; }
 		public int PageSize { get; set; }
 		public string? Sort { get; set; }

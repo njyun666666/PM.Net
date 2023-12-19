@@ -27,18 +27,23 @@ namespace PMAPI.Controllers
 		}
 
 		[HttpPost(nameof(QueryCompany))]
+		[Authorize(Roles = $"{AppConst.Role.Company}")]
 		public async Task<ActionResult<QueryViewModel<List<CompanyViewModel>>>> QueryCompany(QueryModel<CompanyModel> model)
 		{
 			var listQuery = _context.VwOrgCompanies.AsQueryable();
 
-			if (!string.IsNullOrWhiteSpace(model.Filter.DeptName))
+			if (model.Filter != null && !string.IsNullOrWhiteSpace(model.Filter.DeptName))
 			{
 				listQuery = listQuery.Where(x => x.DeptName.Contains(model.Filter.DeptName));
 			}
 
 			var count = listQuery.Count();
 
-			if (!string.IsNullOrWhiteSpace(model.Sort))
+			if (string.IsNullOrWhiteSpace(model.Sort))
+			{
+				listQuery = listQuery.OrderBy(x => x.DeptName);
+			}
+			else
 			{
 				listQuery = listQuery.OrderBy(model.OrderBy);
 			}

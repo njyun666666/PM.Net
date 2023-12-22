@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace PMAPI.Models.Query
+﻿namespace PMAPI.Models.Query
 {
 	public class QueryModel<T>
 	{
@@ -16,10 +14,6 @@ namespace PMAPI.Models.Query
 	public class QueryViewModel<T>
 	{
 		public T Data { get; set; }
-		[JsonIgnore]
-		public int Count { get; set; }
-		[JsonIgnore]
-		public int PageSize { get; set; }
-		public int PageCount => (int)Math.Ceiling((decimal)Count / PageSize);
+		public int PageCount { get; set; }
 	}
 }

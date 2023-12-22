@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PMAPI.Errors;
+using PMAPI.Helper;
 using PMAPI.Models.OrgDepts;
 using PMAPI.Models.Query;
 using PMCore.Configuration;
@@ -52,7 +53,7 @@ namespace PMAPI.Controllers
 
 			var Data = _mapper.Map<List<CompanyViewModel>>(listQuery).ToList();
 
-			return new QueryViewModel<List<CompanyViewModel>> { Data = Data, Count = count, PageSize = model.PageSize };
+			return new QueryViewModel<List<CompanyViewModel>> { Data = Data, PageCount = model.PageCount(count) };
 		}
 
 		[HttpPost(nameof(Company))]

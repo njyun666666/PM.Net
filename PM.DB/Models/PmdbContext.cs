@@ -11,6 +11,8 @@ public partial class PmdbContext : DbContext
     {
     }
 
+    public virtual DbSet<TbLog> TbLogs { get; set; }
+
     public virtual DbSet<TbMenu> TbMenus { get; set; }
 
     public virtual DbSet<TbOrgDept> TbOrgDepts { get; set; }
@@ -34,6 +36,26 @@ public partial class PmdbContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<TbLog>(entity =>
+        {
+            entity.HasKey(e => e.AutoId).HasName("PRIMARY");
+
+            entity.ToTable("TbLog");
+
+            entity.Property(e => e.AutoId).HasColumnName("AutoID");
+            entity.Property(e => e.CurrentValues).HasColumnType("json");
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
+            entity.Property(e => e.LogState).HasMaxLength(50);
+            entity.Property(e => e.OriginalValues).HasColumnType("json");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
+            entity.Property(e => e.UpdateTable).HasMaxLength(50);
+            entity.Property(e => e.UpdateTime).HasColumnType("datetime");
+        });
 
         modelBuilder.Entity<TbMenu>(entity =>
         {

@@ -66,7 +66,7 @@ namespace PMAPI.Controllers
 				dept.Did = Guid.NewGuid().ToString().Replace("-", "");
 				dept.RootDid = dept.Did;
 				dept.Enable = true;
-				dept.Sort = _context.TbOrgDepts.Select(x => x.Sort).OrderByDescending(x => x).FirstOrDefaultAsync().Result;
+				dept.Sort = _context.TbOrgDepts.Select(x => x.Sort).OrderByDescending(x => x).FirstOrDefaultAsync().Result + 1;
 				dept.Expand = false;
 				_context.TbOrgDepts.Add(dept);
 				_context.TbOrgRoleUsers.Add(
@@ -88,12 +88,12 @@ namespace PMAPI.Controllers
 				}
 
 				_context.Entry(targetDept).CurrentValues.SetValues(model);
-			}
 
+			}
 
 			try
 			{
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesWithLogAsync(_uid);
 			}
 			catch (DbUpdateException)
 			{

@@ -7,8 +7,9 @@ namespace PMDB.Models
 	{
 		public async Task<int> SaveChangesWithLogAsync(string uid)
 		{
-			var entries = ChangeTracker.Entries().ToList();
+			var entries = ChangeTracker.Entries();
 			string logID = Guid.NewGuid().ToString().Replace("-", "");
+			var logList = new List<TbLog>();
 
 			foreach (var entry in entries)
 			{
@@ -49,7 +50,9 @@ namespace PMDB.Models
 
 				if (entry.State != EntityState.Unchanged)
 				{
-					this.TbLogs.Add(new TbLog
+					entry.CurrentValues.SetValues(new { LogId = logID });
+
+					logList.Add(new TbLog
 					{
 						LogId = logID,
 						Uid = uid,
@@ -60,6 +63,11 @@ namespace PMDB.Models
 						CurrentValues = currentValues
 					});
 				}
+			}
+
+			if (logList.Any())
+			{
+				this.TbLogs.AddRange(logList);
 			}
 
 			return await this.SaveChangesAsync();

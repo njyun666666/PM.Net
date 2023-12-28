@@ -43,6 +43,8 @@ public partial class PmdbContext : DbContext
 
             entity.ToTable("TbLog");
 
+            entity.HasIndex(e => e.LogId, "idx_TbLog_LogID");
+
             entity.Property(e => e.AutoId).HasColumnName("AutoID");
             entity.Property(e => e.CurrentValues).HasColumnType("json");
             entity.Property(e => e.LogId)
@@ -90,6 +92,9 @@ public partial class PmdbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("DID");
             entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
             entity.Property(e => e.ParentDid)
                 .HasMaxLength(50)
                 .HasColumnName("ParentDID");

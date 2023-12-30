@@ -7,6 +7,7 @@ using PMAPI.Helper;
 using PMAPI.Models.OrgDepts;
 using PMAPI.Models.Query;
 using PMCore.Configuration;
+using PMCore.Helpers;
 using PMDB.Models;
 using System.Linq.Dynamic.Core;
 using System.Net;
@@ -64,7 +65,7 @@ namespace PMAPI.Controllers
 			if (string.IsNullOrWhiteSpace(model.Did) || !TbOrgDeptExists(model.Did))
 			{
 				var dept = _mapper.Map<TbOrgDept>(model);
-				dept.Did = Guid.NewGuid().ToString().Replace("-", "");
+				dept.Did = EncodingHepler.NewID();
 				dept.RootDid = dept.Did;
 				dept.Enable = true;
 				dept.Sort = _context.TbOrgDepts.Select(x => x.Sort).OrderByDescending(x => x).FirstOrDefaultAsync().Result + 1;

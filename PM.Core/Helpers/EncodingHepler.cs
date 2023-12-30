@@ -15,5 +15,10 @@ namespace PMCore.Helpers
 				return BitConverter.ToString(hash).Replace("-", "").ToUpper();
 			}
 		}
+
+		public static string NewID()
+		{
+			return Guid.NewGuid().ToString().Replace("-", "");
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PMCore.Helpers;
 using System.Text.Json;
 
 namespace PMDB.Models
@@ -8,13 +9,19 @@ namespace PMDB.Models
 		public async Task<int> SaveChangesWithLogAsync(string uid)
 		{
 			var entries = ChangeTracker.Entries();
-			string logID = Guid.NewGuid().ToString().Replace("-", "");
 			var logList = new List<TbLog>();
+			var UpdateTime = DateTime.Now;
 
 			foreach (var entry in entries)
 			{
+				string logID = entry.OriginalValues.GetValue<string>("LogId");
 				string? originalValues = null;
 				string? currentValues = null;
+
+				if (string.IsNullOrWhiteSpace(logID))
+				{
+					logID = EncodingHepler.NewID();
+				}
 
 				switch (entry.State)
 				{
@@ -56,7 +63,7 @@ namespace PMDB.Models
 					{
 						LogId = logID,
 						Uid = uid,
-						UpdateTime = DateTime.Now,
+						UpdateTime = UpdateTime,
 						UpdateTable = entry.Metadata.GetTableName(),
 						LogState = entry.State.ToString(),
 						OriginalValues = originalValues,

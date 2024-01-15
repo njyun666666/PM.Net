@@ -113,14 +113,6 @@ namespace PMAPI.Controllers
 			return NoContent();
 		}
 
-		[HttpGet(nameof(CompanyList))]
-		public async Task<ActionResult<List<CompanyViewModel>>> CompanyList()
-		{
-			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
-			var listQuery = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.RootDid)).OrderBy(x => x.DeptName);
-			return _mapper.Map<List<CompanyViewModel>>(listQuery);
-		}
-
 		// POST: api/OrgDepts
 		[HttpPost]
 		public async Task<ActionResult<List<OrgDeptsViewModel>>> GetTbOrgDepts(OrgDeptsModel model)

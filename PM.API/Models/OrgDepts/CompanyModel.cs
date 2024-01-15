@@ -4,7 +4,7 @@
 	{
 		public string? Did { get; set; } = null!;
 
-		public string DeptName { get; set; } = null!;
+		public string? DeptName { get; set; } = null!;
 
 		//public string? ParentDid { get; set; }
 

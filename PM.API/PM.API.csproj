@@ -23,4 +23,8 @@
     <ProjectReference Include="..\PM.DB\PM.DB.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\OrgUser\" />
+  </ItemGroup>
+
 </Project>

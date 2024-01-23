@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Localization;
-using Microsoft.VisualBasic;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace PMAPI.Errors
@@ -39,6 +37,11 @@ namespace PMAPI.Errors
 					});
 					break;
 				case Exception e:
+
+#if DEBUG
+					throw e;
+#endif
+
 					context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 					result = JsonSerializer.Serialize(new
 					{

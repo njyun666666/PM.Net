@@ -9,10 +9,6 @@ public partial class VwOrgCompany
 
     public string DeptName { get; set; } = null!;
 
-    public string? ParentDid { get; set; }
-
-    public string RootDid { get; set; } = null!;
-
     public bool Enable { get; set; }
 
     public int Sort { get; set; }

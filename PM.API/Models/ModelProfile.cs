@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using PMAPI.Models.Menu;
 using PMAPI.Models.OrgDepts;
+using PMAPI.Models.OrgUser;
 using PMDB.Models;
 
 namespace PMAPI.Models
@@ -13,6 +14,7 @@ namespace PMAPI.Models
 			CreateMap<VwOrgDept, OrgDeptsViewModel>();
 			CreateMap<VwOrgCompany, CompanyViewModel>();
 			CreateMap<CompanyModel, TbOrgDept>();
+			CreateMap<TbOrgUser, OrgUserViewModel>();
 		}
 	}
 }

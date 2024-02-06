@@ -27,7 +27,6 @@ namespace PMAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<MenuViewModel>>> GetTbMenus()
 		{
-
 			_menus = await _context.TbMenus
 				.Where(m => m.Enable && m.Rids.Where(r => r.Rid == AppConst.Role.Evenyone || _roles.Contains(r.Rid)).Any())
 				.OrderBy(m => m.Sort).ToListAsync();

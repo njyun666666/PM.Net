@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PMAPI.Errors;
 using PMAPI.Models;
+using PMAPI.Services;
+using PMAPI.Services.IServices;
 using PMCore.Configuration;
 using PMCore.Jwt;
 using PMDB.Models;
@@ -62,6 +64,7 @@ builder.Services.AddDbContext<PmdbContext>(options =>
 
 builder.Services.AddSingleton<AppConfig>();
 builder.Services.AddSingleton<JwtHelper>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services
 	.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

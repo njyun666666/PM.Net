@@ -31,6 +31,8 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<VwOrgDept> VwOrgDepts { get; set; }
 
+    public virtual DbSet<VwOrgUser> VwOrgUsers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -86,6 +88,8 @@ public partial class PmdbContext : DbContext
 
             entity.HasIndex(e => e.ParentDid, "idx_ParentDID");
 
+            entity.HasIndex(e => e.RootDid, "idx_RootDID");
+
             entity.HasIndex(e => new { e.RootDid, e.Did }, "idx_RootDID_DID");
 
             entity.Property(e => e.Did)
@@ -110,6 +114,8 @@ public partial class PmdbContext : DbContext
                 .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
 
             entity.ToTable("TbOrgDeptUser");
+
+            entity.HasIndex(e => e.Did, "DID");
 
             entity.HasIndex(e => e.Uid, "UID");
 
@@ -221,6 +227,9 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("EMail");
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.OauthProvider)
                 .HasMaxLength(50)
@@ -251,12 +260,6 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Did)
                 .HasMaxLength(50)
                 .HasColumnName("DID");
-            entity.Property(e => e.ParentDid)
-                .HasMaxLength(50)
-                .HasColumnName("ParentDID");
-            entity.Property(e => e.RootDid)
-                .HasMaxLength(50)
-                .HasColumnName("RootDID");
         });
 
         modelBuilder.Entity<VwOrgDept>(entity =>
@@ -277,6 +280,34 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.RootDid)
                 .HasMaxLength(50)
                 .HasColumnName("RootDID");
+        });
+
+        modelBuilder.Entity<VwOrgUser>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgUser");
+
+            entity.Property(e => e.CompanyName).HasMaxLength(50);
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.Email)
+                .HasMaxLength(50)
+                .HasColumnName("EMail");
+            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.OauthProvider)
+                .HasMaxLength(50)
+                .HasColumnName("OAuthProvider");
+            entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.PhotoUrl).HasMaxLength(100);
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
         });
 
         OnModelCreatingPartial(modelBuilder);

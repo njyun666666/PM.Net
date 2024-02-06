@@ -27,7 +27,7 @@ namespace PMAPI.Controllers
 		public async Task<ActionResult<List<OptionModel>>> AuthCompanyList(string? value = null)
 		{
 			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
-			var query = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.RootDid));
+			var query = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.Did));
 
 			if (!string.IsNullOrWhiteSpace(value))
 			{

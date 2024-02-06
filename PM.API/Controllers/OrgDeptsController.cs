@@ -52,9 +52,11 @@ namespace PMAPI.Controllers
 
 			listQuery = listQuery.Skip(model.Skip).Take(model.PageSize);
 
-			var Data = _mapper.Map<List<CompanyViewModel>>(listQuery).ToList();
-
-			return new QueryViewModel<List<CompanyViewModel>> { Data = Data, PageCount = model.PageCount(count) };
+			return new QueryViewModel<List<CompanyViewModel>>
+			{
+				Data = await _mapper.ProjectTo<CompanyViewModel>(listQuery).ToListAsync(),
+				PageCount = model.PageCount(count)
+			};
 		}
 
 		[HttpPost(nameof(Company))]
@@ -126,7 +128,7 @@ namespace PMAPI.Controllers
 
 			var listQuery = _context.VwOrgDepts.Where(x => x.RootDid == model.Did).OrderBy(x => x.DeptName);
 
-			return _mapper.Map<List<OrgDeptsViewModel>>(listQuery);
+			return await _mapper.ProjectTo<OrgDeptsViewModel>(listQuery).ToListAsync();
 		}
 		private bool TbOrgDeptExists(string id)
 		{

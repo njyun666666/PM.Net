@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PMDB.Models;
 
-public partial class TbOrgUser
+public partial class VwOrgUser
 {
     public string Uid { get; set; } = null!;
 
@@ -19,9 +19,11 @@ public partial class TbOrgUser
 
     public string? OauthProvider { get; set; }
 
-    public string? LogId { get; set; }
+    public string Did { get; set; } = null!;
 
-    public virtual ICollection<TbOrgDeptUser> TbOrgDeptUsers { get; set; } = new List<TbOrgDeptUser>();
+    public string DeptName { get; set; } = null!;
 
-    public virtual ICollection<TbOrgRoleUser> TbOrgRoleUsers { get; set; } = new List<TbOrgRoleUser>();
+    public string RootDid { get; set; } = null!;
+
+    public string? CompanyName { get; set; }
 }

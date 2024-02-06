@@ -9,7 +9,7 @@ public partial class TbOrgDeptUser
 
     public string Uid { get; set; } = null!;
 
-    public bool? Enable { get; set; }
+    public bool Enable { get; set; }
 
     public virtual TbOrgDept DidNavigation { get; set; } = null!;
 

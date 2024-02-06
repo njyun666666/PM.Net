@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PMDB.Models;
 
-public partial class TbOrgDept
+public partial class VwOrgDept
 {
     public string Did { get; set; } = null!;
 
@@ -19,9 +19,7 @@ public partial class TbOrgDept
 
     public bool Expand { get; set; }
 
-    public string? LogId { get; set; }
+    public string? ParentDeptName { get; set; }
 
-    public virtual ICollection<TbOrgDeptUser> TbOrgDeptUsers { get; set; } = new List<TbOrgDeptUser>();
-
-    public virtual ICollection<TbOrgRoleUser> TbOrgRoleUsers { get; set; } = new List<TbOrgRoleUser>();
+    public string? CompanyName { get; set; }
 }

@@ -11,6 +11,8 @@ public partial class PmdbContext : DbContext
     {
     }
 
+    public virtual DbSet<TbLog> TbLogs { get; set; }
+
     public virtual DbSet<TbMenu> TbMenus { get; set; }
 
     public virtual DbSet<TbOrgDept> TbOrgDepts { get; set; }
@@ -19,13 +21,45 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<TbOrgRole> TbOrgRoles { get; set; }
 
+    public virtual DbSet<TbOrgRoleUser> TbOrgRoleUsers { get; set; }
+
     public virtual DbSet<TbOrgUser> TbOrgUsers { get; set; }
+
+    public virtual DbSet<TbRefreshToken> TbRefreshTokens { get; set; }
+
+    public virtual DbSet<VwOrgCompany> VwOrgCompanies { get; set; }
+
+    public virtual DbSet<VwOrgDept> VwOrgDepts { get; set; }
+
+    public virtual DbSet<VwOrgUser> VwOrgUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<TbLog>(entity =>
+        {
+            entity.HasKey(e => e.AutoId).HasName("PRIMARY");
+
+            entity.ToTable("TbLog");
+
+            entity.HasIndex(e => e.LogId, "idx_TbLog_LogID");
+
+            entity.Property(e => e.AutoId).HasColumnName("AutoID");
+            entity.Property(e => e.CurrentValues).HasColumnType("json");
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
+            entity.Property(e => e.LogState).HasMaxLength(50);
+            entity.Property(e => e.OriginalValues).HasColumnType("json");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
+            entity.Property(e => e.UpdateTable).HasMaxLength(50);
+            entity.Property(e => e.UpdateTime).HasColumnType("datetime");
+        });
 
         modelBuilder.Entity<TbMenu>(entity =>
         {
@@ -36,7 +70,7 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.MenuId)
                 .HasMaxLength(50)
                 .HasColumnName("MenuID");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
+            entity.Property(e => e.Icon).HasMaxLength(50);
             entity.Property(e => e.MenuName).HasMaxLength(50);
             entity.Property(e => e.ParentMenuId)
                 .HasMaxLength(50)
@@ -52,12 +86,19 @@ public partial class PmdbContext : DbContext
 
             entity.ToTable("TbOrgDept");
 
+            entity.HasIndex(e => e.ParentDid, "idx_ParentDID");
+
+            entity.HasIndex(e => e.RootDid, "idx_RootDID");
+
+            entity.HasIndex(e => new { e.RootDid, e.Did }, "idx_RootDID_DID");
+
             entity.Property(e => e.Did)
                 .HasMaxLength(50)
                 .HasColumnName("DID");
             entity.Property(e => e.DeptName).HasMaxLength(50);
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
-            entity.Property(e => e.Expand).HasDefaultValueSql("'0'");
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
             entity.Property(e => e.ParentDid)
                 .HasMaxLength(50)
                 .HasColumnName("ParentDID");
@@ -74,6 +115,8 @@ public partial class PmdbContext : DbContext
 
             entity.ToTable("TbOrgDeptUser");
 
+            entity.HasIndex(e => e.Did, "DID");
+
             entity.HasIndex(e => e.Uid, "UID");
 
             entity.Property(e => e.Did)
@@ -82,7 +125,6 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Uid)
                 .HasMaxLength(50)
                 .HasColumnName("UID");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
 
             entity.HasOne(d => d.DidNavigation).WithMany(p => p.TbOrgDeptUsers)
                 .HasForeignKey(d => d.Did)
@@ -133,6 +175,44 @@ public partial class PmdbContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<TbOrgRoleUser>(entity =>
+        {
+            entity.HasKey(e => new { e.Uid, e.Rid, e.RootDid })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0, 0 });
+
+            entity.ToTable("TbOrgRoleUser");
+
+            entity.HasIndex(e => e.Rid, "RID");
+
+            entity.HasIndex(e => e.RootDid, "TbOrgRoleUser_ibfk_3_idx");
+
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
+            entity.Property(e => e.Rid)
+                .HasMaxLength(50)
+                .HasColumnName("RID");
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+
+            entity.HasOne(d => d.RidNavigation).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.Rid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_2");
+
+            entity.HasOne(d => d.RootD).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.RootDid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_3");
+
+            entity.HasOne(d => d.UidNavigation).WithMany(p => p.TbOrgRoleUsers)
+                .HasForeignKey(d => d.Uid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("TbOrgRoleUser_ibfk_1");
+        });
+
         modelBuilder.Entity<TbOrgUser>(entity =>
         {
             entity.HasKey(e => e.Uid).HasName("PRIMARY");
@@ -147,38 +227,87 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("EMail");
-            entity.Property(e => e.Enable).HasDefaultValueSql("'0'");
+            entity.Property(e => e.LogId)
+                .HasMaxLength(50)
+                .HasColumnName("LogID");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.OauthProvider)
                 .HasMaxLength(50)
                 .HasColumnName("OAuthProvider");
             entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.PhotoUrl).HasMaxLength(100);
+        });
 
-            entity.HasMany(d => d.Rids).WithMany(p => p.Uids)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TbOrgRoleUser",
-                    r => r.HasOne<TbOrgRole>().WithMany()
-                        .HasForeignKey("Rid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("TbOrgRoleUser_ibfk_2"),
-                    l => l.HasOne<TbOrgUser>().WithMany()
-                        .HasForeignKey("Uid")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("TbOrgRoleUser_ibfk_1"),
-                    j =>
-                    {
-                        j.HasKey("Uid", "Rid")
-                            .HasName("PRIMARY")
-                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
-                        j.ToTable("TbOrgRoleUser");
-                        j.HasIndex(new[] { "Rid" }, "RID");
-                        j.IndexerProperty<string>("Uid")
-                            .HasMaxLength(50)
-                            .HasColumnName("UID");
-                        j.IndexerProperty<string>("Rid")
-                            .HasMaxLength(50)
-                            .HasColumnName("RID");
-                    });
+        modelBuilder.Entity<TbRefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.RefreshToken).HasName("PRIMARY");
+
+            entity.ToTable("TbRefreshToken");
+
+            entity.Property(e => e.ExpireTime).HasColumnType("datetime");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(255)
+                .HasColumnName("UID");
+        });
+
+        modelBuilder.Entity<VwOrgCompany>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgCompany");
+
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+        });
+
+        modelBuilder.Entity<VwOrgDept>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgDept");
+
+            entity.Property(e => e.CompanyName).HasMaxLength(50);
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.ParentDeptName).HasMaxLength(50);
+            entity.Property(e => e.ParentDid)
+                .HasMaxLength(50)
+                .HasColumnName("ParentDID");
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+        });
+
+        modelBuilder.Entity<VwOrgUser>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgUser");
+
+            entity.Property(e => e.CompanyName).HasMaxLength(50);
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.Email)
+                .HasMaxLength(50)
+                .HasColumnName("EMail");
+            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.OauthProvider)
+                .HasMaxLength(50)
+                .HasColumnName("OAuthProvider");
+            entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.PhotoUrl).HasMaxLength(100);
+            entity.Property(e => e.RootDid)
+                .HasMaxLength(50)
+                .HasColumnName("RootDID");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
         });
 
         OnModelCreatingPartial(modelBuilder);

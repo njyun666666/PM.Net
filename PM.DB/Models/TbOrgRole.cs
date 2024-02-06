@@ -7,9 +7,9 @@ public partial class TbOrgRole
 {
     public string Rid { get; set; } = null!;
 
-    public string? RoleName { get; set; }
+    public string RoleName { get; set; } = null!;
+
+    public virtual ICollection<TbOrgRoleUser> TbOrgRoleUsers { get; set; } = new List<TbOrgRoleUser>();
 
     public virtual ICollection<TbMenu> Menus { get; set; } = new List<TbMenu>();
-
-    public virtual ICollection<TbOrgUser> Uids { get; set; } = new List<TbOrgUser>();
 }

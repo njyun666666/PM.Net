@@ -29,6 +29,8 @@ public partial class PmdbContext : DbContext
 
     public virtual DbSet<VwOrgCompany> VwOrgCompanies { get; set; }
 
+    public virtual DbSet<VwOrgCompanyUser> VwOrgCompanyUsers { get; set; }
+
     public virtual DbSet<VwOrgDept> VwOrgDepts { get; set; }
 
     public virtual DbSet<VwOrgUser> VwOrgUsers { get; set; }
@@ -260,6 +262,21 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.Did)
                 .HasMaxLength(50)
                 .HasColumnName("DID");
+        });
+
+        modelBuilder.Entity<VwOrgCompanyUser>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_OrgCompanyUser");
+
+            entity.Property(e => e.DeptName).HasMaxLength(50);
+            entity.Property(e => e.Did)
+                .HasMaxLength(50)
+                .HasColumnName("DID");
+            entity.Property(e => e.Uid)
+                .HasMaxLength(50)
+                .HasColumnName("UID");
         });
 
         modelBuilder.Entity<VwOrgDept>(entity =>

@@ -102,7 +102,7 @@ namespace PMAPI.Controllers
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();
-			_context.TbRefreshTokens.Add(new TbRefreshToken()
+			await _context.TbRefreshTokens.AddAsync(new TbRefreshToken()
 			{
 				RefreshToken = refresh_token,
 				ExpireTime = DateTime.Now.AddDays(7),

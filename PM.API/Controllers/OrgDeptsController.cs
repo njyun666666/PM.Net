@@ -72,8 +72,8 @@ namespace PMAPI.Controllers
 				dept.Enable = true;
 				dept.Sort = _context.TbOrgDepts.Select(x => x.Sort).OrderByDescending(x => x).FirstOrDefaultAsync().Result + 1;
 				dept.Expand = false;
-				_context.TbOrgDepts.Add(dept);
-				_context.TbOrgRoleUsers.Add(
+				await _context.TbOrgDepts.AddAsync(dept);
+				await _context.TbOrgRoleUsers.AddAsync(
 					new TbOrgRoleUser
 					{
 						Rid = AppConst.Role.Organization,

@@ -8,6 +8,7 @@ using PMAPI.Models.OrgUser;
 using PMAPI.Models.Query;
 using PMAPI.Services.IServices;
 using PMCore.Configuration;
+using PMCore.Helpers;
 using PMDB.Models;
 using System.Linq.Dynamic.Core;
 using System.Net;
@@ -30,6 +31,7 @@ namespace PMAPI.Controllers
 			_authService = authService;
 		}
 
+		// POST: api/OrgUsers/QueryUsers
 		[HttpPost(nameof(QueryUsers))]
 		public async Task<ActionResult<QueryViewModel<List<OrgUserViewModel>>>> QueryUsers(QueryModel<OrgUserQueryModel> model)
 		{
@@ -73,44 +75,47 @@ namespace PMAPI.Controllers
 			};
 		}
 
-		// GET: api/OrgUsers/5
-		[HttpGet("{id}")]
-		public async Task<ActionResult<TbOrgUser>> GetTbOrgUser(string id)
+		// GET: api/OrgUsers/Depts/{id}
+		[HttpGet(nameof(Depts) + "/{id}")]
+		public async Task<ActionResult<List<OrgUserDeptModel>>> Depts(string id)
 		{
-			if (_context.TbOrgUsers == null)
-			{
-				return NotFound();
-			}
-			var tbOrgUser = await _context.TbOrgUsers.FindAsync(id);
-
-			if (tbOrgUser == null)
-			{
-				return NotFound();
-			}
-
-			return tbOrgUser;
+			var listQuery = _context.VwOrgCompanyUsers.Where(x => x.Uid == id);
+			return await _mapper.ProjectTo<OrgUserDeptModel>(listQuery).ToListAsync();
 		}
 
-		// PUT: api/OrgUsers/5
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutTbOrgUser(string id, TbOrgUser tbOrgUser)
+		[HttpPost]
+		public async Task<ActionResult> OrgUser(OrgUserModel model)
 		{
-			if (id != tbOrgUser.Uid)
+			// Add
+			if (string.IsNullOrWhiteSpace(model.Uid) || !TbOrgUserExists(model.Uid))
 			{
-				return BadRequest();
+				model.Uid = EncodingHepler.NewID();
+				var user = _mapper.Map<TbOrgUser>(model);
+				await _context.TbOrgUsers.AddAsync(user);
 			}
+			else
+			{
+				var targetUser = await _context.TbOrgUsers.Include(x => x.TbOrgDeptUsers).FirstOrDefaultAsync(x => x.Uid == model.Uid);
 
-			_context.Entry(tbOrgUser).State = EntityState.Modified;
+				if (targetUser == null)
+				{
+					return NotFound();
+				}
+
+				var user = _mapper.Map<TbOrgUser>(model);
+				_context.Entry(targetUser).CurrentValues.SetValues(user);
+				targetUser.TbOrgDeptUsers = user.TbOrgDeptUsers;
+			}
 
 			try
 			{
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesWithLogAsync(_uid);
 			}
-			catch (DbUpdateConcurrencyException)
+			catch (DbUpdateException)
 			{
-				if (!TbOrgUserExists(id))
+				if (!TbOrgUserExists(model.Uid))
 				{
+					//return Conflict();
 					return NotFound();
 				}
 				else
@@ -118,55 +123,6 @@ namespace PMAPI.Controllers
 					throw;
 				}
 			}
-
-			return NoContent();
-		}
-
-		// POST: api/OrgUsers
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-		[HttpPost]
-		public async Task<ActionResult<TbOrgUser>> PostTbOrgUser(TbOrgUser tbOrgUser)
-		{
-			if (_context.TbOrgUsers == null)
-			{
-				return Problem("Entity set 'PmdbContext.TbOrgUsers'  is null.");
-			}
-			_context.TbOrgUsers.Add(tbOrgUser);
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateException)
-			{
-				if (TbOrgUserExists(tbOrgUser.Uid))
-				{
-					return Conflict();
-				}
-				else
-				{
-					throw;
-				}
-			}
-
-			return CreatedAtAction("GetTbOrgUser", new { id = tbOrgUser.Uid }, tbOrgUser);
-		}
-
-		// DELETE: api/OrgUsers/5
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteTbOrgUser(string id)
-		{
-			if (_context.TbOrgUsers == null)
-			{
-				return NotFound();
-			}
-			var tbOrgUser = await _context.TbOrgUsers.FindAsync(id);
-			if (tbOrgUser == null)
-			{
-				return NotFound();
-			}
-
-			_context.TbOrgUsers.Remove(tbOrgUser);
-			await _context.SaveChangesAsync();
 
 			return NoContent();
 		}

@@ -14,6 +14,11 @@ namespace PMDB.Models
 
 			foreach (var entry in entries)
 			{
+				if (!entry.OriginalValues.Properties.Any(x => x.Name == "LogId"))
+				{
+					continue;
+				}
+
 				string logID = entry.OriginalValues.GetValue<string>("LogId");
 				string? originalValues = null;
 				string? currentValues = null;

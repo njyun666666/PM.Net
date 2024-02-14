@@ -15,6 +15,9 @@ namespace PMAPI.Models
 			CreateMap<VwOrgCompany, CompanyViewModel>();
 			CreateMap<CompanyModel, TbOrgDept>();
 			CreateMap<TbOrgUser, OrgUserViewModel>();
+			CreateMap<VwOrgCompanyUser, OrgUserDeptModel>();
+			CreateMap<OrgUserModel, TbOrgUser>().ForMember(dest => dest.TbOrgDeptUsers, opt => opt.MapFrom(src => src.Depts));
+			CreateMap<OrgUserDeptModel, TbOrgDeptUser>();
 		}
 	}
 }

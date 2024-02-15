@@ -59,7 +59,13 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<PmdbContext>(options =>
 {
-	options.UseMySql(builder.Configuration.GetConnectionString("PMDB"), Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.34-mysql"));
+#if DEBUG
+	string PMDB = builder.Configuration.GetConnectionString("PMDB");
+#else
+	string PMDB = PMCore.Helpers.AccessSecretVersion.Get(builder.Configuration["ProjectID"], "PMDB");
+#endif
+
+	options.UseMySql(PMDB, Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.34-mysql"));
 });
 
 builder.Services.AddSingleton<AppConfig>();

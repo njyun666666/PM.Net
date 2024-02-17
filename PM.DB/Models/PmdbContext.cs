@@ -236,7 +236,7 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.OauthProvider)
                 .HasMaxLength(50)
                 .HasColumnName("OAuthProvider");
-            entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhotoUrl).HasMaxLength(100);
         });
 
@@ -317,7 +317,7 @@ public partial class PmdbContext : DbContext
             entity.Property(e => e.OauthProvider)
                 .HasMaxLength(50)
                 .HasColumnName("OAuthProvider");
-            entity.Property(e => e.Passwrod).HasMaxLength(255);
+            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhotoUrl).HasMaxLength(100);
             entity.Property(e => e.RootDid)
                 .HasMaxLength(50)

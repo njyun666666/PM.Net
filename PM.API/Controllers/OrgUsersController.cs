@@ -93,7 +93,7 @@ namespace PMAPI.Controllers
 			{
 				model.Uid = EncodingHepler.NewID();
 				var user = _mapper.Map<TbOrgUser>(model);
-				user.Passwrod = EncodingHepler.ComputeHMACSHA256("demo123456", _config.APIKey());
+				user.Password = EncodingHepler.ComputeHMACSHA256("demo123456", _config.APIKey());
 				await _context.TbOrgUsers.AddAsync(user);
 			}
 			else

@@ -30,7 +30,7 @@ namespace PMAPI.Controllers
 		public async Task<ActionResult<TokenViewModel>> Index(LoginModel login)
 		{
 			string encodingPW = EncodingHepler.ComputeHMACSHA256(login.Password, _config.APIKey());
-			var user = await _context.TbOrgUsers.Include(x => x.TbOrgRoleUsers).FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Passwrod == encodingPW);
+			var user = await _context.TbOrgUsers.Include(x => x.TbOrgRoleUsers).FirstOrDefaultAsync(x => x.Email == login.Email && x.Enable && x.Password == encodingPW);
 
 			if (user == null)
 			{

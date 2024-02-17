@@ -9,7 +9,7 @@ public partial class TbOrgUser
 
     public string Email { get; set; } = null!;
 
-    public string? Passwrod { get; set; }
+    public string? Password { get; set; }
 
     public string Name { get; set; } = null!;
 

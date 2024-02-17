@@ -23,12 +23,14 @@ namespace PMAPI.Controllers
 		private readonly PmdbContext _context;
 		private readonly IMapper _mapper;
 		private readonly IAuthService _authService;
+		private AppConfig _config;
 
-		public OrgUsersController(PmdbContext context, IMapper mapper, IAuthService authService)
+		public OrgUsersController(PmdbContext context, IMapper mapper, IAuthService authService, AppConfig config)
 		{
 			_context = context;
 			_mapper = mapper;
 			_authService = authService;
+			_config = config;
 		}
 
 		// POST: api/OrgUsers/QueryUsers
@@ -91,6 +93,7 @@ namespace PMAPI.Controllers
 			{
 				model.Uid = EncodingHepler.NewID();
 				var user = _mapper.Map<TbOrgUser>(model);
+				user.Passwrod = EncodingHepler.ComputeHMACSHA256("demo123456", _config.APIKey());
 				await _context.TbOrgUsers.AddAsync(user);
 			}
 			else
@@ -102,8 +105,9 @@ namespace PMAPI.Controllers
 					return NotFound();
 				}
 
+				_context.Entry(targetUser).CurrentValues.SetValues(model);
+
 				var user = _mapper.Map<TbOrgUser>(model);
-				_context.Entry(targetUser).CurrentValues.SetValues(user);
 				targetUser.TbOrgDeptUsers = user.TbOrgDeptUsers;
 			}
 

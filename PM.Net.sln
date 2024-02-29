@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "方案項目", "方案項目", "{EA5F9DBF-AB55-4220-8A06-15F76A71F298}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
+		Dockerfile.debug = Dockerfile.debug
 	EndProjectSection
 EndProject
 Global

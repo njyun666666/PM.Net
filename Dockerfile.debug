@@ -30,4 +30,4 @@ ENV ASPNETCORE_URLS=http://*:8080
 ENTRYPOINT ["dotnet", "PM.API.dll"]
 
 # docker build -t pm.net -f Dockerfile.debug .
-# docker container create --name PM.Net -p 8080:8080 pm.net
+# docker container create --name PM.Net -p 8080:8080 -e TZ=Asia/Taipei pm.net

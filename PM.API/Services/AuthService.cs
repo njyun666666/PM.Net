@@ -13,9 +13,18 @@ namespace PMAPI.Services
 		{
 			_context = context;
 		}
+		public async Task<bool> IsAdmin(string uid)
+		{
+			return await _context.TbOrgRoleUsers.AnyAsync(x => x.Uid == uid && x.Rid == AppConst.Role.Administrator);
+		}
 
 		public async Task<bool> CheckOrgAdmin(string rootDid, string uid)
 		{
+			if (await IsAdmin(uid))
+			{
+				return true;
+			}
+
 			return await _context.TbOrgRoleUsers.AnyAsync(x => x.Uid == uid && x.Rid == AppConst.Role.Organization && x.RootDid == rootDid);
 		}
 

@@ -28,11 +28,16 @@ namespace PMAPI.Controllers
 		}
 
 		[HttpGet(nameof(AuthCompanyList) + "/{value?}")]
-		[Authorize(Roles = $"{AppConst.Role.Administrator},{AppConst.Role.Company}")]
+		[Authorize(Roles = AppConst.Role.Company)]
 		public async Task<ActionResult<List<OptionModel>>> AuthCompanyList(string? value = null)
 		{
-			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
-			var query = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.Did));
+			var query = _context.VwOrgCompanies.AsQueryable();
+
+			if (!IsRole(AppConst.Role.Administrator))
+			{
+				var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
+				query = query.Where(x => rootDept.Contains(x.Did));
+			}
 
 			if (!string.IsNullOrWhiteSpace(value))
 			{
@@ -43,10 +48,10 @@ namespace PMAPI.Controllers
 		}
 
 		[HttpGet(nameof(AuthCompanyUserList) + "/{company}")]
-		[Authorize(Roles = $"{AppConst.Role.Administrator},{AppConst.Role.Company}")]
+		[Authorize(Roles = AppConst.Role.Company)]
 		public async Task<ActionResult<List<OptionModel>>> AuthCompanyUserList([FromQuery] OptionQueryModel model, string company)
 		{
-			if (!await _authService.CheckOrgAdmin(company, _uid))
+			if (!await _authService.IsOrgAdmin(company, _uid))
 			{
 				throw new RestException(HttpStatusCode.Forbidden);
 			}

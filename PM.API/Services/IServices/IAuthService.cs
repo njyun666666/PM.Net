@@ -2,6 +2,7 @@
 {
 	public interface IAuthService
 	{
-		Task<bool> CheckOrgAdmin(string rootDid, string uid);
+		Task<bool> IsAdmin(string uid);
+		Task<bool> IsOrgAdmin(string rootDid, string uid);
 	}
 }

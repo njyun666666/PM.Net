@@ -18,7 +18,7 @@ namespace PMAPI.Services
 			return await _context.TbOrgRoleUsers.AnyAsync(x => x.Uid == uid && x.Rid == AppConst.Role.Administrator);
 		}
 
-		public async Task<bool> CheckOrgAdmin(string rootDid, string uid)
+		public async Task<bool> IsOrgAdmin(string rootDid, string uid)
 		{
 			if (await IsAdmin(uid))
 			{

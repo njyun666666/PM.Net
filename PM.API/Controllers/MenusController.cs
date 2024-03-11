@@ -34,6 +34,15 @@ namespace PMAPI.Controllers
 			return SetMenu(null);
 		}
 
+		// GET: api/Menus/AuthMenus
+		[HttpGet(nameof(AuthMenus))]
+		[Authorize(Roles = AppConst.Role.Administrator)]
+		public async Task<ActionResult<List<AuthMenuViewModel>>> AuthMenus()
+		{
+			_menus = await _context.TbMenus.OrderBy(m => m.Sort).ToListAsync();
+			return _mapper.Map<List<AuthMenuViewModel>>(SetMenu(null));
+		}
+
 		private List<MenuViewModel> SetMenu(string? parentMenuID)
 		{
 			IEnumerable<TbMenu> menuList;

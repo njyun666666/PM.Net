@@ -37,7 +37,7 @@ namespace PMAPI.Controllers
 		[HttpPost(nameof(QueryUsers))]
 		public async Task<ActionResult<QueryViewModel<List<OrgUserViewModel>>>> QueryUsers(QueryModel<OrgUserQueryModel> model)
 		{
-			if (model.Filter == null || !await _authService.CheckOrgAdmin(model.Filter.RootDID, _uid))
+			if (model.Filter == null || !await _authService.IsOrgAdmin(model.Filter.RootDID, _uid))
 			{
 				throw new RestException(HttpStatusCode.Forbidden);
 			}

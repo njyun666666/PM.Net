@@ -96,9 +96,19 @@ namespace PMAPI.Controllers
 				claims.Add(new Claim("photoURL", user.PhotoUrl));
 			}
 
-			foreach (var rid in user.TbOrgRoleUsers.Select(x => x.Rid).Distinct())
+			if (user.TbOrgRoleUsers.Any(x => x.Rid == AppConst.Role.Administrator))
 			{
-				claims.Add(new Claim(ClaimTypes.Role, rid));
+				foreach (var rid in _context.TbOrgRoles.Select(x => x.Rid))
+				{
+					claims.Add(new Claim(ClaimTypes.Role, rid));
+				}
+			}
+			else
+			{
+				foreach (var rid in user.TbOrgRoleUsers.Select(x => x.Rid).Distinct())
+				{
+					claims.Add(new Claim(ClaimTypes.Role, rid));
+				}
 			}
 
 			string refresh_token = Guid.NewGuid().ToString();

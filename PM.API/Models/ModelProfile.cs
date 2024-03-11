@@ -11,6 +11,7 @@ namespace PMAPI.Models
 		public ModelProfile()
 		{
 			CreateMap<TbMenu, MenuViewModel>();
+			CreateMap<MenuViewModel, AuthMenuViewModel>();
 			CreateMap<VwOrgDept, OrgDeptsViewModel>();
 			CreateMap<VwOrgCompany, CompanyViewModel>();
 			CreateMap<CompanyModel, TbOrgDept>();

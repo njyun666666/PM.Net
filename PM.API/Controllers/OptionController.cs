@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PMAPI.Errors;
 using PMAPI.Models.Query;
+using PMAPI.Services.IServices;
 using PMCore.Configuration;
 using PMDB.Models;
+using System.Net;
 
 namespace PMAPI.Controllers
 {
@@ -15,19 +18,26 @@ namespace PMAPI.Controllers
 	{
 		private readonly PmdbContext _context;
 		private readonly IMapper _mapper;
+		private readonly IAuthService _authService;
 
-		public OptionController(PmdbContext context, IMapper mapper)
+		public OptionController(PmdbContext context, IMapper mapper, IAuthService authService)
 		{
 			_context = context;
 			_mapper = mapper;
+			_authService = authService;
 		}
 
 		[HttpGet(nameof(AuthCompanyList) + "/{value?}")]
 		[Authorize(Roles = AppConst.Role.Company)]
 		public async Task<ActionResult<List<OptionModel>>> AuthCompanyList(string? value = null)
 		{
-			var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
-			var query = _context.VwOrgCompanies.Where(x => rootDept.Contains(x.Did));
+			var query = _context.VwOrgCompanies.AsQueryable();
+
+			if (!IsRole(AppConst.Role.Administrator))
+			{
+				var rootDept = await _context.TbOrgRoleUsers.Where(x => x.Uid == _uid && x.Rid == AppConst.Role.Organization).Select(x => x.RootDid).ToListAsync();
+				query = query.Where(x => rootDept.Contains(x.Did));
+			}
 
 			if (!string.IsNullOrWhiteSpace(value))
 			{
@@ -37,6 +47,24 @@ namespace PMAPI.Controllers
 			return query.Select(x => new OptionModel { Value = x.Did, Label = x.DeptName }).OrderBy(x => x.Label).ToList();
 		}
 
+		[HttpGet(nameof(AuthCompanyUserList) + "/{company}")]
+		[Authorize(Roles = AppConst.Role.Company)]
+		public async Task<ActionResult<List<OptionModel>>> AuthCompanyUserList([FromQuery] OptionQueryModel model, string company)
+		{
+			if (!await _authService.IsOrgAdmin(company, _uid))
+			{
+				throw new RestException(HttpStatusCode.Forbidden);
+			}
+
+			var query = _context.VwOrgUsers.Where(x => x.RootDid == company);
+
+			if (!string.IsNullOrWhiteSpace(model.Input))
+			{
+				query = query.Where(x => x.Name.Contains(model.Input));
+			}
+
+			return query.Select(x => new OptionModel { Value = x.Uid, Label = x.Name }).Distinct().OrderBy(x => x.Label).ToList();
+		}
 
 	}
 }

@@ -25,9 +25,10 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-ENV ASPNETCORE_URLS=http://*:8080
-#ENV ASPNETCORE_ENVIRONMENT=Production
+#ENV ASPNETCORE_URLS=http://*:8080
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV TZ=Asia/Taipei
 ENTRYPOINT ["dotnet", "PM.API.dll"]
 
 # docker build -t pm.net -f Dockerfile.debug .
-# docker container create --name PM.Net -p 8080:8080 -e TZ=Asia/Taipei pm.net
+# docker container create --name PM.Net -p 8080:80 pm.net
